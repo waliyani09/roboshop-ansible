@@ -1,0 +1,4 @@
+LOAD_SCHEMA: false
+APP_VERSION: 1.0.0
+NEXUS_USER: "{{ lookup('aws_ssm', 'param.NEXUS_USER', region='us-east-1' ) }}"
+NEXUS_PASS: "{{ lookup('aws_ssm', 'param.NEXUS_PASS', region='us-east-1' ) }}"

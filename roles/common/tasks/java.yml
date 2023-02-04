@@ -1,0 +1,37 @@
+#- name: Install Maven
+#  ansible.builtin.yum:
+#    name: maven
+#    state: installed
+
+- name: Install Java
+  ansible.builtin.yum:
+    name: java-17-openjdk
+    state: installed
+
+- name: Include Download App Code Tasks from Common Role
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: download-app-code
+
+## Since compilation is part of ci process, we dont need this
+#- name: Compile Code
+#  ansible.builtin.shell: mvn clean package && mv target/{{COMPONENT}}-1.0.jar {{COMPONENT}}.jar
+#  args:
+#    chdir: "{{ APP_LOC }}"
+
+- name: SystemD tasks
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: systemd
+
+- name: Prometheus Alert
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: prom-alerts
+
+#- name: Load Schema
+#  when: LOAD_SCHEMA
+#  ansible.builtin.include_role:
+#    name: common
+#    tasks_from: "{{DBTYPE}}"
+

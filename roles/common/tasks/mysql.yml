@@ -1,0 +1,23 @@
+- name: Install MySQL Client
+  ansible.builtin.yum:
+    name:
+      - mariadb
+      - python3-PyMySQL
+    state: installed
+
+- name: Create app user
+  community.mysql.mysql_query:
+    query: GRANT ALL ON cities.* TO 'shipping'@'%' IDENTIFIED BY 'secret';
+    login_host: "{{ lookup('aws_ssm', 'param.{{ENV}}.shipping.DB_HOST', region='us-east-1' ) }}"
+    login_user: "{{ lookup('aws_ssm', 'param.{{ENV}}.shipping.ROOT_USERNAME', region='us-east-1' ) }}"
+    login_password: "{{ lookup('aws_ssm', 'param.{{ENV}}.shipping.ROOT_PASSWORD', region='us-east-1' ) }}"
+
+- name: Load Schema
+  community.mysql.mysql_db:
+    state: import
+    name: all
+    encoding: latin1
+    target: "{{APP_LOC}}/schema/{{COMPONENT}}.sql"
+    login_host: "{{ lookup('aws_ssm', 'param.{{ENV}}.shipping.DB_HOST', region='us-east-1' ) }}"
+    login_user: "{{ lookup('aws_ssm', 'param.{{ENV}}.shipping.ROOT_USERNAME', region='us-east-1' ) }}"
+    login_password: "{{ lookup('aws_ssm', 'param.{{ENV}}.shipping.ROOT_PASSWORD', region='us-east-1' ) }}"

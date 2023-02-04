@@ -1,0 +1,42 @@
+- name: Install Python
+  ansible.builtin.yum:
+    name:
+      - python36
+      - gcc
+      - python3-devel
+    state: installed
+
+- name: Include Download App Code Tasks from Common Role
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: download-app-code
+
+- name: Install Python Dependencies
+  ansible.builtin.pip:
+    requirements: /home/roboshop/{{COMPONENT}}/requirements.txt
+    executable: pip3
+
+- name: Update Application Parameter file - User ID
+  ansible.builtin.lineinfile:
+    path: /home/roboshop/{{COMPONENT}}/{{COMPONENT}}.ini
+    regexp: 'uid'
+    line: uid = {{appuser.uid}}
+
+- name: Update Application Parameter file - Group I D
+  ansible.builtin.lineinfile:
+    path: /home/roboshop/{{COMPONENT}}/{{COMPONENT}}.ini
+    regexp: 'gid'
+    line: uid = {{appuser.group}}
+
+- name: SystemD tasks
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: systemd
+
+- name: Prometheus Alert
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: prom-alerts
+
+
+

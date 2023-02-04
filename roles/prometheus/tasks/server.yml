@@ -1,0 +1,45 @@
+- name: Copy Record Rules
+  ansible.builtin.template:
+    src: record_rules.yml
+    dest: /opt/prometheus/record_rules.yml
+
+- name: Copy Alert Rules
+  ansible.builtin.template:
+    src: alert_rules.yml
+    dest: /opt/prometheus/alert_rules.yml
+
+- name: Copy Prometheus Config
+  ansible.builtin.template:
+    src: prometheus.yml
+    dest: /opt/prometheus/prometheus.yml
+
+- name: Reload Service
+  ansible.builtin.shell: curl -f -v -X POST http://localhost:9090/-/reload
+  ignore_errors: yes
+  register: stat
+
+- name: Restart Prometheus Service
+  ansible.builtin.systemd:
+    name: prometheus
+    state: restarted
+  when: stat is failed
+
+- name: Check Prometheus Service is running
+  ansible.builtin.shell: netstat -lntp | grep 9090
+
+- name: Update alert manager configuration
+  ansible.builtin.template:
+    src: alertmanager.yml
+    dest: /opt/alertmanager/alertmanager.yml
+
+- name: Restart Alert Manager
+  ansible.builtin.systemd:
+    name: alertmanager
+    state: restarted
+
+- name: Check Alert Manager Service is running
+  ansible.builtin.shell: netstat -lntp | grep 9093
+
+
+
+

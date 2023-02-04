@@ -1,0 +1,3 @@
+APPLICATION_LIST:
+  - { name: "cart", serviceName: "cart"}
+  - { name: "catalogue", serviceName: "catalogue"}

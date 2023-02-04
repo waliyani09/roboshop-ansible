@@ -1,0 +1,5 @@
+COMPONENT: payment
+APP_USER: roboshop
+APP_LOC: /home/roboshop/payment
+LOAD_SCHEMA: no
+SERVICE_NAME: payment

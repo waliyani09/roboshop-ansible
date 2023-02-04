@@ -1,0 +1,82 @@
+- name: Get root Password from Parameter store
+  ansible.builtin.set_fact:
+    ROOT_PASSWORD: "{{ lookup('aws_ssm', 'param.{{ENV}}.mysql.ROOT_PASSWORD', region='us-east-1' ) }}"
+
+- name: Copy MySQL Repo file
+  ansible.builtin.copy:
+    src: mysql.repo
+    dest: /etc/yum.repos.d/mysql.repo
+
+- name: Disable MySQL 8 Version repo
+  ansible.builtin.shell: dnf module disable mysql -y
+
+- name: Install MySQL Server
+  ansible.builtin.yum:
+    name:
+      - mysql-community-server
+      - python3-PyMySQL
+    state: installed
+
+- name: Start MySQL Service
+  ansible.builtin.systemd:
+    name: mysqld
+    state: restarted
+    enabled: yes
+
+#### Note: All the following commented lines are not needed any more, Following one shell command can do the job.
+####   mysql_secure_installation --set-root-pass RoboShop@1
+#### So enabling the ansible to run this command.
+
+#- name: Get MySQL version
+#  community.mysql.mysql_info:
+#    login_user: root
+#    login_password: "{{ROOT_PASSWORD}}"
+#    filter: version
+#  ignore_errors: yes
+#  register: out
+#
+#- name: Change Default Password
+#  when: out.failed
+#  block:
+#    - name: Copy Root Rest Password file
+#      ansible.builtin.template:
+#        src: root-pass.sql
+#        dest: /tmp/root-pass.sql
+#
+#    - name: Load MySQL Log File
+#      ansible.builtin.slurp:
+#        src: /var/log/mysqld.log
+#      register: mysql_log
+#
+#    - name: Change Default Password
+#      ansible.builtin.shell: mysql --connect-expired-password -uroot -p"{{ mysql_log['content'] | b64decode | regex_findall('temporary password.*') | join(' ') | split(' ') | last }}"  </tmp/root-pass.sql
+#
+#- name: Get Plugins list
+#  community.mysql.mysql_query:
+#    login_user: root
+#    login_password: "{{ROOT_PASSWORD}}"
+#    query: show plugins
+#  ignore_errors: yes
+#  register: out
+#
+#- name: Remove Validate Plugin Password
+#  community.mysql.mysql_query:
+#    login_user: root
+#    login_password: "{{ROOT_PASSWORD}}"
+#    query: uninstall plugin validate_password
+#  when: out | regex_findall('validate_password') | length  > 0
+#
+#- name: Copy App Usser Setup SQL
+#  ansible.builtin.template:
+#    src: app-user.sql
+#    dest: /tmp/app-user.sql
+#
+#- name: Create App User in DB
+#  ansible.builtin.shell: mysql -uroot -p"{{ ROOT_PASSWORD }}"  </tmp/app-user.sql
+
+- name: Reset the password
+  ansible.builtin.shell: mysql_secure_installation --set-root-pass RoboShop@1 {{ ROOT_PASSWORD }}
+
+
+
+

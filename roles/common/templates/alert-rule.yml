@@ -1,0 +1,19 @@
+groups:
+  - name: {{SERVICE_NAME}}
+    rules:
+      - alert: Application Down -  {{COMPONENT}}
+        expr: node_systemd_unit_state{name="{{SERVICE_NAME}}.service",state="active"} == 0
+        labels:
+          severity: warning
+          project: roboshop
+        annotations:
+          summary: Application Down - {{SERVICE_NAME}}
+          description: InstanceDown - {{SERVICE_NAME}}
+      - alert: Memory Usage Alert - {{COMPONENT}}
+        expr: node_mem_used_percentage > 80
+        labels:
+          severity: warning
+          project: roboshop
+        annotations:
+          summary: Memory Usage Alert  - {{SERVICE_NAME}}
+          description: Memory Usage Alert  - {{SERVICE_NAME}}

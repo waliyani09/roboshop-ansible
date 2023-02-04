@@ -1,0 +1,40 @@
+- name: Configure Nodejs repo
+  ansible.builtin.shell: curl -sL https://rpm.nodesource.com/setup_lts.x | bash
+
+- name: Install NodeJS
+  ansible.builtin.yum:
+    name: nodejs
+    state: installed
+
+- name: Include Download App Code Tasks from Common Role
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: download-app-code
+
+- name: Install NodeJS Dependencies
+  community.general.npm:
+    path: "{{ APP_LOC }}"
+
+- name: Download DocumentDB pem file
+  get_url:
+    url: https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
+    dest: /home/roboshop/{{COMPONENT}}/rds-combined-ca-bundle.pem
+
+- name: Load Schema
+  when: LOAD_SCHEMA
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: "{{DBTYPE}}"
+
+- name: SystemD tasks
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: systemd
+
+- name: Prometheus Alert
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: prom-alerts
+
+
+

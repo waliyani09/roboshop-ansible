@@ -1,0 +1,4 @@
+COMPONENT: frontend
+APP_LOC: /usr/share/nginx/html
+LOG_FILE: /var/log/nginx/access.log
+SERVICE_NAME: nginx

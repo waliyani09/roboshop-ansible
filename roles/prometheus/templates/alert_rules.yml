@@ -1,0 +1,12 @@
+groups:
+  - name: custom
+    rules:
+      - alert: InstanceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+          project: roboshop
+        annotations:
+          summary: InstanceDown
+          description: InstanceDown

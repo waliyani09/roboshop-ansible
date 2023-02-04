@@ -1,0 +1,18 @@
+[Service]
+User=root
+WorkingDirectory=/home/roboshop/payment
+
+Environment=CART_HOST="{{ lookup('aws_ssm', 'param.{{ENV}}.payment.CART_HOST', region='us-east-1' ) }}"
+Environment=CART_PORT="{{ lookup('aws_ssm', 'param.{{ENV}}.payment.CART_PORT', region='us-east-1' ) }}"
+Environment=USER_HOST="{{ lookup('aws_ssm', 'param.{{ENV}}.payment.USER_HOST', region='us-east-1' ) }}"
+Environment=USER_PORT="{{ lookup('aws_ssm', 'param.{{ENV}}.payment.USER_PORT', region='us-east-1' ) }}"
+Environment=AMQP_HOST="{{ lookup('aws_ssm', 'param.{{ENV}}.payment.AMQP_HOST', region='us-east-1' ) }}"
+Environment=AMQP_USER="{{ lookup('aws_ssm', 'param.{{ENV}}.payment.AMQP_USER', region='us-east-1' ) }}"
+Environment=AMQP_PASS="{{ lookup('aws_ssm', 'param.{{ENV}}.payment.AMQP_PASS', region='us-east-1' ) }}"
+
+ExecStart=/usr/local/bin/uwsgi --ini payment.ini
+ExecStop=/bin/kill -9 $MAINPID
+SyslogIdentifier=payment
+
+[Install]
+WantedBy=multi-user.target

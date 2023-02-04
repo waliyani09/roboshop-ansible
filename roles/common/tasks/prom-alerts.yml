@@ -1,0 +1,12 @@
+- name: Generate prometheus Alert file locally
+  template:
+    src: alert-rule.yml
+    dest: /tmp/{{COMPONENT}}-alert-rule.yml
+
+- name: Copy Prmetheus Alert file to prometheus Server
+  ansible.builtin.shell: scp /tmp/{{COMPONENT}}-alert-rule.yml 172.31.7.108:/opt/prometheus/alerts-rules/{{COMPONENT}}-alert-rule.yml
+
+- name: Reload Prometheus Service
+  ansible.builtin.shell: curl -f -v -X POST http://172.31.7.108:9090/-/reload
+
+

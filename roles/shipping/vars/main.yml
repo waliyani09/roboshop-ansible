@@ -1,0 +1,6 @@
+COMPONENT: shipping
+APP_USER: roboshop
+APP_LOC: /home/roboshop/shipping
+DBTYPE: mysql
+LOAD_SCHEMA: yes
+SERVICE_NAME: shipping
